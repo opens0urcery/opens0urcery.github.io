@@ -1,1 +1,72 @@
-<h1>hi</h1>
+<style>
+    #chats {
+        width: 100%;
+        height: 90%;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        resize: none;
+        font-size: 125%;
+    }
+    #chatarea {
+        width: 95%;
+        height: 9%;
+        position: absolute;
+        top: 90%;
+        left: 0%;
+        font-size: 150%;
+    }
+    #subby {
+        width: 5%;
+        height: 9%;
+        position: absolute;
+        top: 90%;
+        left: 95%;
+    }
+</style>
+<textarea id="chats" readonly></textarea>
+<input type="text" id="chatarea" placeholder="Connecting..." readonly>
+<button id="subby">Connecting...</button>
+
+<script>
+    ws = new WebSocket("wss://55a4-72-193-9-27.ngrok-free.app");
+    ws.onopen = function () {
+    uid = Math.random();
+    console.log("os");
+    document.getElementById("chats").value = "";
+    document.getElementById("chatarea").readOnly = false;
+    document.getElementById("chatarea").placeholder = "Enter message to send...";
+    document.getElementById("subby").innerHTML = "Send";
+    chats = [];
+
+    function listtostr(list) {
+        s = ""
+        for (var i = 0; i < list.length; i++) {
+            s += "Someone: " + list[i] + "\n"
+        }
+        return s;
+    }
+
+    function submissive() {
+        ws.send(JSON.stringify([document.getElementById("chatarea").value, uid]));
+        document.getElementById("chatarea").value = "";
+    }
+
+
+    ws.onmessage = function (event) {
+        console.log(event.data.toString());
+        chats.push(event.data.toString());
+        document.getElementById("chats").value = listtostr(chats);
+        if(chats.length > 20) {
+            chats.shift();
+        }
+    }
+
+
+    document.onkeypress = function (e) {
+        if(e.keyCode == 13) {
+            submissive();
+        }
+    };
+}
+</script>
